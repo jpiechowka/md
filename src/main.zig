@@ -12,5 +12,7 @@ pub fn main() !void {
 }
 
 test "main test" {
-    try expect(true);
+    try expect(lib_enigma.add(1, 2) == 3);
+    try expect(lib_shadow.add(3, 4) == 7);
+    try expect(lib_syringe.add(5, 6) == 11);
 }
