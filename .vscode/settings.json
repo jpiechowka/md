@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
-        "comptime"
+        "callconv",
+        "comptime",
+        "LPCSTR",
+        "winapi"
     ]
 }
