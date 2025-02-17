@@ -1,23 +1,30 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 pub fn build(b: *std.Build) void {
+    b.verbose = true;
+
+    comptime {
+        if (builtin.zig_version.minor < 13) @compileError(" Zig version >= 0.13.0 is required");
+    }
+
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
     const enigma_mod = b.createModule(.{
-        .root_source_file = b.path("libs/enigma/src/root.zig"),
+        .root_source_file = b.path("libs/enigma/src/enigma.zig"),
         .target = target,
         .optimize = optimize,
     });
 
     const shadow_mod = b.createModule(.{
-        .root_source_file = b.path("libs/shadow/src/root.zig"),
+        .root_source_file = b.path("libs/shadow/src/shadow.zig"),
         .target = target,
         .optimize = optimize,
     });
 
     const syringe_mod = b.createModule(.{
-        .root_source_file = b.path("libs/syringe/src/root.zig"),
+        .root_source_file = b.path("libs/syringe/src/syringe.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -93,9 +100,17 @@ pub fn build(b: *std.Build) void {
     const run_syringe_unit_tests = b.addRunArtifact(syringe_lib_unit_tests);
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
 
-    const test_step = b.step("test", "Run unit tests");
-    test_step.dependOn(&run_enigma_unit_tests.step);
-    test_step.dependOn(&run_shadow_unit_tests.step);
-    test_step.dependOn(&run_syringe_unit_tests.step);
-    test_step.dependOn(&run_exe_unit_tests.step);
+    const full_test_step = b.step("test", "Run all unit tests");
+    full_test_step.dependOn(&run_enigma_unit_tests.step);
+    full_test_step.dependOn(&run_shadow_unit_tests.step);
+    full_test_step.dependOn(&run_syringe_unit_tests.step);
+    full_test_step.dependOn(&run_exe_unit_tests.step);
+
+    const exe_test_step = b.step("test-exe", "Run executable unit tests only");
+    exe_test_step.dependOn(&run_exe_unit_tests.step);
+
+    const libs_test_step = b.step("test-libs", "Run libraries unit tests only");
+    libs_test_step.dependOn(&run_enigma_unit_tests.step);
+    libs_test_step.dependOn(&run_shadow_unit_tests.step);
+    libs_test_step.dependOn(&run_syringe_unit_tests.step);
 }
