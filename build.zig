@@ -2,10 +2,8 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 pub fn build(b: *std.Build) void {
-    b.verbose = true;
-
     comptime {
-        if (builtin.zig_version.minor < 13) @compileError(" Zig version >= 0.13.0 is required");
+        if (builtin.zig_version.minor < 13) @compileError("Zig version >= 0.13.0 is required");
     }
 
     const target = b.standardTargetOptions(.{});
@@ -136,4 +134,16 @@ pub fn build(b: *std.Build) void {
     libs_test_step.dependOn(&run_enigma_unit_tests.step);
     libs_test_step.dependOn(&run_shadow_unit_tests.step);
     libs_test_step.dependOn(&run_syringe_unit_tests.step);
+
+    const fmt = b.addFmt(.{
+        .check = true,
+        .paths = &.{
+            "src",
+            "libs",
+            "build.zig",
+        },
+    });
+
+    const fmt_step = b.step("fmt", "Run formatting checks");
+    fmt_step.dependOn(&fmt.step);
 }
