@@ -57,6 +57,24 @@ pub fn build(b: *std.Build) void {
         .root_module = syringe_mod,
     });
 
+    const enigma_docs = b.addInstallDirectory(.{
+        .source_dir = enigma_lib.getEmittedDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs/enigma",
+    });
+
+    const shadow_docs = b.addInstallDirectory(.{
+        .source_dir = shadow_lib.getEmittedDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs/shadow",
+    });
+
+    const syringe_docs = b.addInstallDirectory(.{
+        .source_dir = syringe_lib.getEmittedDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs/syringe",
+    });
+
     b.installArtifact(enigma_lib);
     b.installArtifact(shadow_lib);
     b.installArtifact(syringe_lib);
@@ -78,6 +96,11 @@ pub fn build(b: *std.Build) void {
 
     const run_step = b.step("run", "Run the executable");
     run_step.dependOn(&run_cmd.step);
+
+    const docs_step = b.step("docs", "Generate documentation for the libraries");
+    docs_step.dependOn(&enigma_docs.step);
+    docs_step.dependOn(&shadow_docs.step);
+    docs_step.dependOn(&syringe_docs.step);
 
     const enigma_lib_unit_tests = b.addTest(.{
         .root_module = enigma_mod,
