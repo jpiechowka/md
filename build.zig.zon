@@ -2,12 +2,6 @@
     .name = "md",
     .version = "0.0.1",
     .minimum_zig_version = "0.13.0",
-    .dependencies = .{
-        .enigma = .{ .path = "libs/enigma" },
-        .homer = .{ .path = "libs/homer" },
-        .shadow = .{ .path = "libs/shadow" },
-        .syringe = .{ .path = "libs/syringe" },
-    },
 
     .paths = .{
         "build.zig",

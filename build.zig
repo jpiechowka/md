@@ -9,25 +9,25 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const enigma_mod = b.createModule(.{
+    const enigma_mod = b.addModule("enigma", .{
         .root_source_file = b.path("libs/enigma/src/enigma.zig"),
         .target = target,
         .optimize = optimize,
     });
 
-    const homer_mod = b.createModule(.{
+    const homer_mod = b.addModule("homer", .{
         .root_source_file = b.path("libs/homer/src/homer.zig"),
         .target = target,
         .optimize = optimize,
     });
 
-    const shadow_mod = b.createModule(.{
+    const shadow_mod = b.addModule("shadow", .{
         .root_source_file = b.path("libs/shadow/src/shadow.zig"),
         .target = target,
         .optimize = optimize,
     });
 
-    const syringe_mod = b.createModule(.{
+    const syringe_mod = b.addModule("syringe", .{
         .root_source_file = b.path("libs/syringe/src/syringe.zig"),
         .target = target,
         .optimize = optimize,
