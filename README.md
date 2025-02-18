@@ -8,3 +8,7 @@ Maldev Academy stuff - https://maldevacademy.com
 * `Homer` - logging using std.log
 * `Shadow` - obfuscation
 * `Syringe` - code / payload injection
+
+## Docs
+
+Easiest way to serve docs is `python3 -m http.server 8000 --directory .\zig-out\docs\`
