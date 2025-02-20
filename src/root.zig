@@ -1,7 +1,11 @@
 const std = @import("std");
 const windows = std.os.windows;
 
+const log = @import("log.zig");
+
+/// Test to call WinAPI MessageBoxA
 pub fn show_msg_box_winapi_test() void {
+    log.debug("Calling MessageBoxA WinAPI func", .{});
     _ = MessageBoxA(null, "World!", "Hello", 0);
 }
 
