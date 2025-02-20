@@ -9,26 +9,8 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const enigma_mod = b.addModule("enigma", .{
-        .root_source_file = b.path("libs/enigma/src/enigma.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    const homer_mod = b.addModule("homer", .{
-        .root_source_file = b.path("libs/homer/src/homer.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    const shadow_mod = b.addModule("shadow", .{
-        .root_source_file = b.path("libs/shadow/src/shadow.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    const syringe_mod = b.addModule("syringe", .{
-        .root_source_file = b.path("libs/syringe/src/syringe.zig"),
+    const lib_mod = b.addModule("libmd", .{
+        .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -39,63 +21,15 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    exe_mod.addImport("enigma", enigma_mod);
-    exe_mod.addImport("homer", homer_mod);
-    exe_mod.addImport("shadow", shadow_mod);
-    exe_mod.addImport("syringe", syringe_mod);
+    exe_mod.addImport("libmd", lib_mod);
 
-    const enigma_lib = b.addLibrary(.{
+    const lib = b.addLibrary(.{
         .linkage = .static,
-        .name = "enigma",
-        .root_module = enigma_mod,
+        .name = "libmd",
+        .root_module = lib_mod,
     });
 
-    const homer_lib = b.addLibrary(.{
-        .linkage = .static,
-        .name = "homer",
-        .root_module = homer_mod,
-    });
-
-    const shadow_lib = b.addLibrary(.{
-        .linkage = .static,
-        .name = "shadow",
-        .root_module = shadow_mod,
-    });
-
-    const syringe_lib = b.addLibrary(.{
-        .linkage = .static,
-        .name = "syringe",
-        .root_module = syringe_mod,
-    });
-
-    const enigma_docs = b.addInstallDirectory(.{
-        .source_dir = enigma_lib.getEmittedDocs(),
-        .install_dir = .prefix,
-        .install_subdir = "docs/enigma",
-    });
-
-    const homer_docs = b.addInstallDirectory(.{
-        .source_dir = homer_lib.getEmittedDocs(),
-        .install_dir = .prefix,
-        .install_subdir = "docs/homer",
-    });
-
-    const shadow_docs = b.addInstallDirectory(.{
-        .source_dir = shadow_lib.getEmittedDocs(),
-        .install_dir = .prefix,
-        .install_subdir = "docs/shadow",
-    });
-
-    const syringe_docs = b.addInstallDirectory(.{
-        .source_dir = syringe_lib.getEmittedDocs(),
-        .install_dir = .prefix,
-        .install_subdir = "docs/syringe",
-    });
-
-    b.installArtifact(enigma_lib);
-    b.installArtifact(homer_lib);
-    b.installArtifact(shadow_lib);
-    b.installArtifact(syringe_lib);
+    b.installArtifact(lib);
 
     const exe = b.addExecutable(.{
         .name = "md",
@@ -115,59 +49,40 @@ pub fn build(b: *std.Build) void {
     const run_step = b.step("run", "Run the executable");
     run_step.dependOn(&run_cmd.step);
 
+    const lib_docs = b.addInstallDirectory(.{
+        .source_dir = lib.getEmittedDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs",
+    });
+
     const docs_step = b.step("docs", "Generate documentation for the libraries");
-    docs_step.dependOn(&enigma_docs.step);
-    docs_step.dependOn(&homer_docs.step);
-    docs_step.dependOn(&shadow_docs.step);
-    docs_step.dependOn(&syringe_docs.step);
+    docs_step.dependOn(&lib_docs.step);
 
-    const enigma_lib_unit_tests = b.addTest(.{
-        .root_module = enigma_mod,
-    });
-
-    const homer_lib_unit_tests = b.addTest(.{
-        .root_module = homer_mod,
-    });
-
-    const shadow_lib_unit_tests = b.addTest(.{
-        .root_module = shadow_mod,
-    });
-
-    const syringe_lib_unit_tests = b.addTest(.{
-        .root_module = syringe_mod,
+    const lib_unit_tests = b.addTest(.{
+        .root_module = lib_mod,
     });
 
     const exe_unit_tests = b.addTest(.{
         .root_module = exe_mod,
     });
 
-    const run_enigma_unit_tests = b.addRunArtifact(enigma_lib_unit_tests);
-    const run_homer_unit_tests = b.addRunArtifact(homer_lib_unit_tests);
-    const run_shadow_unit_tests = b.addRunArtifact(shadow_lib_unit_tests);
-    const run_syringe_unit_tests = b.addRunArtifact(syringe_lib_unit_tests);
+    const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
 
     const full_test_step = b.step("test", "Run all unit tests");
-    full_test_step.dependOn(&run_enigma_unit_tests.step);
-    full_test_step.dependOn(&run_homer_unit_tests.step);
-    full_test_step.dependOn(&run_shadow_unit_tests.step);
-    full_test_step.dependOn(&run_syringe_unit_tests.step);
+    full_test_step.dependOn(&run_lib_unit_tests.step);
     full_test_step.dependOn(&run_exe_unit_tests.step);
 
     const exe_test_step = b.step("test-exe", "Run executable unit tests only");
     exe_test_step.dependOn(&run_exe_unit_tests.step);
 
-    const libs_test_step = b.step("test-libs", "Run libraries unit tests only");
-    libs_test_step.dependOn(&run_enigma_unit_tests.step);
-    libs_test_step.dependOn(&run_homer_unit_tests.step);
-    libs_test_step.dependOn(&run_shadow_unit_tests.step);
-    libs_test_step.dependOn(&run_syringe_unit_tests.step);
+    const libs_test_step = b.step("test-libs", "Run library unit tests only");
+    libs_test_step.dependOn(&run_lib_unit_tests.step);
 
     const fmt = b.addFmt(.{
         .check = true,
         .paths = &.{
             "src",
-            "libs",
             "build.zig",
         },
     });

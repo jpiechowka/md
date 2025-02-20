@@ -1,9 +1,12 @@
 {
     "cSpell.words": [
+        "anyerror",
         "anytype",
         "callconv",
         "comptime",
+        "libmd",
         "LPCSTR",
+        "milli",
         "winapi"
     ]
 }
